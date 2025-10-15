@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    container_name: shortcode
+    restart: always
+    environment:
+      POSTGRES_USER: chandan_r
+      POSTGRES_PASSWORD: Chandan@67170
+      POSTGRES_DB: shortcodes
+    ports:
+      - "5434:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: shorturl
+    restart: always
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://chandan_r:Chandan@67170@db:5432/shortcodes?sslmode=disable
+    ports:
+      - "8080:8080"
+    command: ["/app/shorturl"]
+
+  nginx:
+    image: nginx:latest
+    container_name: shorturl_nginx
+    ports:
+      - "200:200"
+    volumes:
+      - ./logs/:/var/log/nginx/
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - app
+
+
+volumes:
+  pg_data:
+
+#  nginx_logs:
